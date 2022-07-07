@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>Electron From Scratch</title>
+</head>
+<body>
+    <h2>Hello, Developer!</h2>
+    <p>You are running this page through electron 🤟🏻</p>
+    <p id="info"></p>
+    <hr />
+    <div>
+        <input type="text" id="title" placeholder="Title...">
+        <button id="button" type="button">Set</button>
+    </div>
+    <hr />
+    <div>
+        <button id="buttonOpenFile">Open a File</button>
+        <span>File path: <strong id="labelFilePath"></strong></span>
+    </div>
+    <hr />
+    <div>
+        <span>Current Value: <strong id="counter">0</strong></span>
+    </div>
+    <script src="dist/renderer.js"></script>
+</body>
+</html>
