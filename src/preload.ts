@@ -1,35 +1,26 @@
-import {contextBridge, ipcRenderer} from "electron"
+import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld("versions", {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron,
-    
+contextBridge.exposeInMainWorld("_versions", {
+    node: process.versions.node,
+    chrome: process.versions.chrome,
+    electron: process.versions.electron
+})
+
+contextBridge.exposeInMainWorld("_commands", {
     ping: () => ipcRenderer.invoke("ping")
 })
 
-contextBridge.exposeInMainWorld("api", {
+contextBridge.exposeInMainWorld("_api", {
     setTitle: (title: string) => ipcRenderer.send("set-title", title),
     openFile: () => ipcRenderer.invoke("dialog:openFile"),
-
-    onUpdateCounter: (callback: any) => ipcRenderer.on("update-counter", callback),
+    onUpdateCounter: (callback: any) => ipcRenderer.on("update-counter", callback)
 })
 
-// Legacy (obsolete)
-
-// ipcRenderer.on("asynchronous-reply", (_event, arg) => {
-//     console.log(arg)
+// window.addEventListener("DOMContentLoaded", () => {
+//     const counter = document.querySelector("#counter") as HTMLElement
+//     ipcRenderer.on("update-counter", (e, v) => {
+//         const pv = Number(counter.innerText)
+//         const nv = pv + v
+//         counter.innerText = nv
+//     })
 // })
-
-// ipcRenderer.send("asynchronous-message", "ping")
-
-// 
-
-window.addEventListener("DOMContentLoaded", () => {
-    const counter = document.getElementById("counter") as HTMLElement
-    ipcRenderer.on("update-counter", (_event, value) => {
-        const oldValue = Number(counter.innerText)
-        const newValue = oldValue + value
-        counter.innerText = newValue
-    })
-})

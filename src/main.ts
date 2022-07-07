@@ -1,16 +1,8 @@
-import {BrowserWindow, app, ipcMain, IpcMainEvent, dialog} from "electron"
-import { Menu } from "electron/main"
+import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, WebContents} from "electron"
 import {join} from "path"
 
-// Pattern #1 (renderer to main - one-way) ~ ipcMain.on / ipcRenderer.send
-function handleSetTitle(event: IpcMainEvent, title: string) {
-    const webContents = event.sender
-    const window = BrowserWindow.fromWebContents(webContents)
-    window?.setTitle(title)
-}
-
-// Pattern #2 (render to main - two-way) ~ ipcMain.handle / ipcRenderer.invoke
-async function handleFileOpen() {
+// Pattern #2 (Two-Way) (Render -> Main) (ipcMain.handle/ipcRenderer.invoke)
+async function fileOpen() {
     const {canceled, filePaths} = await dialog.showOpenDialog(BrowserWindow.getAllWindows()[0])
     if (canceled)
         return
@@ -18,66 +10,54 @@ async function handleFileOpen() {
         return filePaths[0]
 }
 
-const createWindow = () => {
+// Pattern #1 (One-Way) (Render -> Main) (ipcMain.on/ipcRenderer.send)
+function setTitle(event: IpcMainEvent, title: string) {
+    const webContents = event.sender as WebContents
+    const window = BrowserWindow.fromWebContents(webContents) as BrowserWindow
+    window.setTitle(title)
+}
+
+function createWindow() {
     const window = new BrowserWindow({
         width: 800,
         height: 600,
+        // autoHideMenuBar: true,
         webPreferences: {
+            sandbox: true,
             preload: join(__dirname, "preload.js")
         }
     })
-
-    // Menu
-    const menu = Menu.buildFromTemplate([
-        {
-            label: app.name,
-            submenu: [
-                {
-                    click: () => window.webContents.send("update-counter", 1),
-                    label: "Increment"
-                },
-                {
-                    click: () => window.webContents.send("update-counter", -1),
-                    label: "Decrement"
-                }
-            ]
-        }
-    ])
-
-    Menu.setApplicationMenu(menu)
-    // 
-
-    ipcMain.handle("ping", () => "pong")
-
-    // // Legacy obsolete
-    // ipcMain.on("asynchronous-message", (event, arg) => {
-    //     console.log(arg)
-    //     event.reply("asynchronous-reply", "pong")
-    // })
-    // // 
-
+    setIpcHandlers()
+    setWindowMenu(window)
     window.loadFile("index.html")
-
-    // Open DevTools
-    window.webContents.openDevTools()
+    // window.webContents.openDevTools()
 }
 
+function setWindowMenu(window: BrowserWindow) {
+    const menu = Menu.buildFromTemplate([{
+        label: "Counter",
+        submenu: [
+            { click: () => window.webContents.send("update-counter", 1), label: "Increment" },
+            { click: () => window.webContents.send("update-counter", -1), label: "Decrement" },
+        ]
+    }])
+    Menu.setApplicationMenu(menu)
+}
+
+function setIpcHandlers() {
+    ipcMain.handle("ping", () => "[IPC-Main] [Pong]")
+    ipcMain.handle("dialog:openFile", fileOpen)
+    ipcMain.on("set-title", setTitle)
+}
+
+app.enableSandbox()
 app.whenReady()
    .then(() => {
-        ipcMain.on("set-title", handleSetTitle)
-        ipcMain.handle("dialog:openFile", handleFileOpen)
-
-        ipcMain.on("counter-value", (_event, value) => {
-            console.log(value)
-        })
-
-        createWindow()
-
         app.on("activate", () => {
             BrowserWindow.getAllWindows().length === 0 && createWindow()
         })
-
         app.on("window-all-closed", () => {
             process.platform !== "darwin" && app.quit()
         })
+        createWindow()
    })

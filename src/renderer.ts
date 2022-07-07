@@ -1,53 +1,46 @@
-import { IpcRenderer } from "electron"
-
-const info = document.getElementById("info")
-
-// @ts-expect-error
-info?.innerText = `This app is running Chrome (v${versions.chrome()}), NodeJS (v${versions.node()}) and Electron (v${versions.electron()})`
-
-const ping = async () => {
-    // @ts-expect-error
-    const response = await window.versions.ping()
-    console.log(response)
+type Versions = {
+    node: string,
+    chrome: string,
+    electron: string
 }
 
-ping()
+type Commands = {
+    ping: () => Promise<string>
+}
 
-// 
-
-const API: {
+type API = {
     setTitle: (title: string) => void,
     openFile: () => Promise<string>,
-    onUpdateCounter: (callback: any) => IpcRenderer
-    // @ts-expect-error
-} = api
+    onUpdateCounter: (callback: any) => unknown
+}
 
-const setButton = document.getElementById("button") as HTMLButtonElement
-const setInput = document.getElementById("title")as HTMLInputElement
+// @ts-expect-error
+const versions: Versions = window._versions
+// @ts-expect-error
+const commands: Commands = window._commands
+// @ts-expect-error
+const api: API = window._api
 
-setButton.addEventListener("click", () => {
-    const title = setInput.value
-    API.setTitle(title)
-})
+const info = document.querySelector("#info") as HTMLElement
+info.innerText =  `See the application versions: \n`
+info.innerText += `Chrome: [${versions.chrome}] \n`
+info.innerText += `NodeJS: [${versions.node}] \n`
+info.innerText += `Electron: [${versions.electron}] \n`
 
-// 
+const ping = document.querySelector("#ping") as HTMLButtonElement
+ping.addEventListener("click", async () => console.log(await commands.ping()))
 
-const buttonOpenFile = document.getElementById("buttonOpenFile") as HTMLButtonElement
-const labelFilePath = document.getElementById("labelFilePath") as HTMLSpanElement
+const title = document.querySelector("#title") as HTMLInputElement
+const titleButton = document.querySelector("#set-title") as HTMLButtonElement
+titleButton.addEventListener("click", () => api.setTitle(title.value))
 
-buttonOpenFile.addEventListener("click", async () => {
-    const filePath = await API.openFile()
-    labelFilePath.innerText = filePath
-})
+const openedFileText = document.querySelector("#opened-file") as HTMLLabelElement
+const openFileButton = document.querySelector("#open-file") as HTMLButtonElement
+openFileButton.addEventListener("click", async () => openedFileText.innerText = await api.openFile())
 
-//
-
-const counter = document.getElementById("counter") as HTMLElement
-
-API.onUpdateCounter((_event: any, value: any) => {
-    const oldValue = Number(counter.innerText)
-    const newValue = oldValue + value
-    counter.innerText = newValue
-
-    // _event.sender.send("counter-value", newValue)
+const counter = document.querySelector("#counter") as HTMLElement
+api.onUpdateCounter((e: Event, v: string) => {
+    const pv = Number(counter.innerText)
+    const nv = pv + v
+    counter.innerText = nv
 })

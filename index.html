@@ -6,26 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-    <title>Electron From Scratch</title>
+    <link rel="stylesheet" href="index.css">
+    <title>:: Electron ::</title>
 </head>
 <body>
-    <h2>Hello, Developer!</h2>
-    <p>You are running this page through electron 🤟🏻</p>
-    <p id="info"></p>
-    <hr />
+    <h2>You're running this pace using electron 🤟</h2>
+    <div id="info"></div>
     <div>
-        <input type="text" id="title" placeholder="Title...">
-        <button id="button" type="button">Set</button>
+        <button type="button" id="ping">PING</button>
     </div>
-    <hr />
     <div>
-        <button id="buttonOpenFile">Open a File</button>
-        <span>File path: <strong id="labelFilePath"></strong></span>
+        <button type="button" id="open-file">OPEN FILE</button>
+        <br /><br />
+        <label id="opened-file"></label>
     </div>
-    <hr />
     <div>
-        <span>Current Value: <strong id="counter">0</strong></span>
+        <span>Counter: </span>
+        <span id="counter">0</span>
     </div>
-    <script src="dist/renderer.js"></script>
+    <div>
+        <input type="text" id="title" placeholder="Window title..." />
+        <button type="button" id="set-title">SET TITLE</button>
+    </div>
+    <script src="./dist/renderer.js"></script>
 </body>
 </html>
