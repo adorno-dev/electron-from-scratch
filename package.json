@@ -8,7 +8,9 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && cp -Rvap ./src/assets ./dist/",
+    "win:build": "tsc && xcopy src\\assets dist\\assets /E/H/C/I/Y",
     "dev": "yarn build && yarn electron . --unhandled-rejections=warn",
+    "win:dev": "yarn win:build && yarn electron . --unhandled-rejections=warn",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make"
