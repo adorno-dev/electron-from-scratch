@@ -7,8 +7,8 @@
   "author": "Adorno <adorno.dev@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "dev": "yarn build && yarn electron .",
+    "build": "tsc && cp -Rvap ./src/assets ./dist/",
+    "dev": "yarn build && yarn electron . --unhandled-rejections=warn",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make"

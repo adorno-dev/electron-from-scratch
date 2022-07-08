@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, webContents } from "electron";
 
 contextBridge.exposeInMainWorld("_versions", {
     node: process.versions.node,
@@ -24,3 +24,10 @@ contextBridge.exposeInMainWorld("_api", {
 //         counter.innerText = nv
 //     })
 // })
+
+contextBridge.exposeInMainWorld("_ipcRenderer", {
+    postMessage: (channel: string, message: any, transfer: MessagePort[]) => {
+        // There's a problem to import ipcRenderer on client side, so I tried to implement it
+        // indirectly on preload. Otherwise you gonna take an error telling the exports is undefined.
+    }
+})

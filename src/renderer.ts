@@ -14,12 +14,18 @@ type API = {
     onUpdateCounter: (callback: any) => unknown
 }
 
+type IPCRenderer = {
+    postMessage: (channel: string, message: any, transfer?: MessagePort[]) => void
+}
+
 // @ts-expect-error
 const versions: Versions = window._versions
 // @ts-expect-error
 const commands: Commands = window._commands
 // @ts-expect-error
 const api: API = window._api
+// @ts-expect-error
+const ipcRenderer: IPCRenderer = window._ipcRenderer
 
 const info = document.querySelector("#info") as HTMLElement
 info.innerText =  `See the application versions: \n`
@@ -44,3 +50,15 @@ api.onUpdateCounter((e: Event, v: string) => {
     const nv = pv + v
     counter.innerText = nv
 })
+
+// MessagePorts 
+
+const channel = new MessageChannel()
+const port1 = channel.port1
+const port2 = channel.port2
+
+port2.postMessage({answer: 42})
+
+ipcRenderer.postMessage("port", null, [port1])
+
+// ipcRenderer.postMessage('port', null, [port1])
